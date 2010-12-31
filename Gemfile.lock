@@ -34,6 +34,10 @@ GEM
     autotest (4.4.4)
     autotest-rails (4.1.0)
       ZenTest
+    aws-s3 (0.6.2)
+      builder
+      mime-types
+      xml-simple
     builder (2.1.2)
     diff-lcs (1.1.2)
     erubis (2.6.6)
@@ -76,6 +80,7 @@ GEM
       thor (~> 0.14.4)
     rake (0.8.7)
     rcov (0.9.9)
+    redgreen (1.2.2)
     rspec (2.0.0.beta.18)
       rspec-core (= 2.0.0.beta.18)
       rspec-expectations (= 2.0.0.beta.18)
@@ -95,6 +100,7 @@ GEM
       nokogiri (>= 1.2.0)
       rack (>= 1.0)
       rack-test (>= 0.5.3)
+    xml-simple (1.0.12)
 
 PLATFORMS
   ruby
@@ -103,10 +109,12 @@ DEPENDENCIES
   annotate-models (= 1.0.4)
   autotest
   autotest-rails
+  aws-s3
   factory_girl_rails (= 1.0)
   pg
   phocoder-rb
   rails (= 3.0.3)
   rcov
+  redgreen (= 1.2.2)
   rspec (= 2.0.0.beta.18)
   rspec-rails (= 2.0.0.beta.18)

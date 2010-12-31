@@ -23,7 +23,7 @@ gem 'phocoder-rb'
 # gem 'bj'
 # gem 'nokogiri'
 # gem 'sqlite3-ruby', :require => 'sqlite3'
-# gem 'aws-s3', :require => 'aws/s3'
+gem 'aws-s3', :require => 'aws/s3'
 
 # Bundle gems for the local environment. Make sure to
 # put test-only gems in this group so their generators
@@ -44,4 +44,5 @@ end
 group :test do
   gem 'rspec', '2.0.0.beta.18'
   gem 'factory_girl_rails', '1.0'
+  gem 'redgreen', '1.2.2'
 end

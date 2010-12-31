@@ -15,17 +15,10 @@ describe ImageUploadsController do
       { :get => "/image_uploads/1" }.should route_to(:controller => "image_uploads", :action => "show", :id => "1")
     end
 
-    it "recognizes and generates #edit" do
-      { :get => "/image_uploads/1/edit" }.should route_to(:controller => "image_uploads", :action => "edit", :id => "1")
-    end
-
     it "recognizes and generates #create" do
       { :post => "/image_uploads" }.should route_to(:controller => "image_uploads", :action => "create")
     end
 
-    it "recognizes and generates #update" do
-      { :put => "/image_uploads/1" }.should route_to(:controller => "image_uploads", :action => "update", :id => "1")
-    end
 
     it "recognizes and generates #destroy" do
       { :delete => "/image_uploads/1" }.should route_to(:controller => "image_uploads", :action => "destroy", :id => "1")

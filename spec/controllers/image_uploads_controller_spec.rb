@@ -30,13 +30,6 @@ describe ImageUploadsController do
     end
   end
 
-  describe "GET edit" do
-    it "assigns the requested image_upload as @image_upload" do
-      ImageUpload.stub(:find).with("37") { mock_image_upload }
-      get :edit, :id => "37"
-      assigns(:image_upload).should be(mock_image_upload)
-    end
-  end
 
   describe "POST create" do
 
@@ -70,43 +63,6 @@ describe ImageUploadsController do
 
   end
 
-  describe "PUT update" do
-
-    describe "with valid params" do
-      it "updates the requested image_upload" do
-        ImageUpload.should_receive(:find).with("37") { mock_image_upload }
-        mock_image_upload.should_receive(:update_attributes).with({'these' => 'params'})
-        put :update, :id => "37", :image_upload => {'these' => 'params'}
-      end
-
-      it "assigns the requested image_upload as @image_upload" do
-        ImageUpload.stub(:find) { mock_image_upload(:update_attributes => true) }
-        put :update, :id => "1"
-        assigns(:image_upload).should be(mock_image_upload)
-      end
-
-      it "redirects to the image_upload" do
-        ImageUpload.stub(:find) { mock_image_upload(:update_attributes => true) }
-        put :update, :id => "1"
-        response.should redirect_to(image_upload_url(mock_image_upload))
-      end
-    end
-
-    describe "with invalid params" do
-      it "assigns the image_upload as @image_upload" do
-        ImageUpload.stub(:find) { mock_image_upload(:update_attributes => false) }
-        put :update, :id => "1"
-        assigns(:image_upload).should be(mock_image_upload)
-      end
-
-      it "re-renders the 'edit' template" do
-        ImageUpload.stub(:find) { mock_image_upload(:update_attributes => false) }
-        put :update, :id => "1"
-        response.should render_template("edit")
-      end
-    end
-
-  end
 
   describe "DELETE destroy" do
     it "destroys the requested image_upload" do

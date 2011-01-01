@@ -4,7 +4,11 @@ describe ImageUpload do
   
   before(:each) do
     @attr = {
-      :file => Rack::Test::UploadedFile.new(fixture_path + '/big_eye_tiny.jpg', 'image/jpeg') 
+    :file => ActionDispatch::Http::UploadedFile.new(
+      :tempfile=> Rack::Test::UploadedFile.new(fixture_path + '/big_eye_tiny.jpg', 'image/jpeg'),
+      :filename=>"big_eye_tiny.jpg"
+    )
+      #:file => Rack::Test::UploadedFile.new(fixture_path + '/big_eye_tiny.jpg', 'image/jpeg') 
     }
   end
   
@@ -23,7 +27,7 @@ describe ImageUpload do
   it "should save the file to a local storage location" do
     iu = ImageUpload.new(@attr)
     iu.save
-    expected_local_path = File.join(RAILS_ROOT,'public','ImageUpload',iu.id.to_s,iu.filename)
+    expected_local_path = File.join(::Rails.root.to_s,'public','ImageUpload',iu.id.to_s,iu.filename)
     iu.local_path.should == expected_local_path
     iu.local_url.should == "/ImageUpload/#{iu.id}/#{iu.filename}"
     File.exists?(expected_local_path).should be_true
@@ -34,10 +38,6 @@ describe ImageUpload do
   it "should save the file to an AWS S3 storage location" do
     iu = ImageUpload.new(@attr)
     iu.save
-    expected_local_path = File.join(RAILS_ROOT,'public','ImageUpload',iu.id.to_s,iu.filename)
-    iu.local_path.should == expected_local_path
-    iu.local_url.should == "/ImageUpload/#{iu.id}/#{iu.filename}"
-    File.exists?(expected_local_path).should be_true
     #should not be on S3 yet
     bucket = iu.s3_config[:bucket_name]
     key = iu.s3_key
@@ -51,10 +51,11 @@ describe ImageUpload do
     }.should_not raise_error(Exception)
     
     iu.destroy
+    #after destroy the file should not be in S3 anymore
     lambda{
       o = AWS::S3::S3Object.find(key,bucket)
     }.should raise_error(Exception)
-    File.exists?(expected_local_path).should_not be_true
+    
   end
   
   

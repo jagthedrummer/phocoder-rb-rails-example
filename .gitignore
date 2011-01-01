@@ -2,3 +2,6 @@
 db/*.sqlite3
 log/*.log
 tmp/**/*
+config/amazon_s3.yml
+coverage/
+public/ImageUpload/

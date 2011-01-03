@@ -1,5 +1,19 @@
 class ImageUploadsController < ApplicationController
   
+  protect_from_forgery :except=>[:phocoder_update]  
+
+  def phocoder_update
+    logger.debug "the params = #{params.to_json}"
+    @image_upload = ImageUpload.update_from_phocoder(params)
+    respond_to do |format|
+      format.html
+      format.json  { render :json => {} }
+      format.xml  { render :xml => {} }
+    end
+  end
+
+
+  
   # Note : edit and update are excluded from this demo because replacing
   # a file at a URL is a potentially complex topic.
   # Replacing 'demo.pdf' with a new version also called 'demo.pdf' is one thing.
@@ -10,7 +24,7 @@ class ImageUploadsController < ApplicationController
   # GET /image_uploads
   # GET /image_uploads.xml
   def index
-    @image_uploads = ImageUpload.all
+    @image_uploads = ImageUpload.top_level.all
 
     respond_to do |format|
       format.html # index.html.erb
@@ -56,7 +70,6 @@ class ImageUploadsController < ApplicationController
       end
     end
   end
-
 
   # DELETE /image_uploads/1
   # DELETE /image_uploads/1.xml

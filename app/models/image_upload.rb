@@ -4,6 +4,11 @@ class ImageUpload < ActiveRecord::Base
   before_destroy :remove_local_file,:remove_s3_file
   after_save :save_local_file
   
+  has_many :thumbnails, :class_name=>"ImageUpload"
+  belongs_to :parent, :class_name=>"ImageUpload"
+  
+  scope :top_level, where({:parent_id=>nil})
+  
   THUMBNAILS = [
     {:label=>"small",:width=>100,:height=>100},
     {:label=>"medium",:width=>400,:height=>400},
@@ -95,11 +100,52 @@ class ImageUpload < ActiveRecord::Base
     Phocoder.api_key = @phocoder_config[:api_key]
   end
   
+  
+  def phocoder_params
+    {:input => {:url => self.s3_url, :notifications=>[{:url=>"http://phocoderexample.chaos.webapeel.com/image_uploads/phocoder_update.json" }] },
+      :thumbnails => THUMBNAILS.map{|thumb|
+        thumb_filename = thumb[:label] + "_" + File.basename(self.filename,File.extname(self.filename)) + ".jpg" 
+        base_url = "s3://#{s3_config[:bucket_name]}/#{self.resource_dir}/"
+        thumb.merge({
+          :filename=>thumb_filename,
+          :base_url=>base_url,
+          :notifications=>[{:url=>"http://phocoderexample.chaos.webapeel.com/image_uploads/phocoder_update.json" }]
+        })
+      }
+    }
+  end
+  
   def phocode
     phocoder_init
-    j = Phocoder::Job.create({:input => self.s3_url,
-      :thumbnails => THUMBNAILS
-    })
+    response = Phocoder::Job.create(phocoder_params)
+    self.phocoder_input_id = response.body["job"]["inputs"].first["id"]
+    self.phocoder_job_id = response.body["job"]["id"]
+    self.save
+    response.body["job"]["thumbnails"].each do |thumb_params|
+      thumb = ImageUpload.new(
+        :thumbnail=>thumb_params["label"],
+        :filename=>thumb_params["filename"],
+        :phocoder_output_id=>thumb_params["id"],
+        :phocoder_job_id=>response.body["job"]["id"],
+        :parent_id=>self.id
+      )
+      thumb.save
+    end
+  end
+  
+  def self.update_from_phocoder(params)
+    if !params[:output].blank?
+      iu = ImageUpload.find_by_phocoder_output_id params[:output][:id]
+      img_params = params[:output]
+    else
+      iu = ImageUpload.find_by_phocoder_input_id params[:input][:id]
+      img_params = params[:input]
+    end
+    iu.file_size = img_params[:file_size]
+    iu.width = img_params[:width]
+    iu.height = img_params[:height]
+    iu.save
+    iu
   end
   
   

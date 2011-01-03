@@ -1,7 +1,10 @@
 PhocoderRbRailsExample::Application.routes.draw do
   
   #see ImageUploadController for reasons why edit and update are excluded
-  resources :image_uploads, :except=>[:edit,:update]
+  
+  resources :image_uploads, :except=>[:edit,:update] do
+    post 'phocoder_update', :on => :collection
+  end
 
   # The priority is based upon order of creation:
   # first created -> highest priority.

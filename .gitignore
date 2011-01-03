@@ -6,3 +6,4 @@ config/amazon_s3.yml
 config/phocoder.yml
 coverage/
 public/ImageUpload/
+*~

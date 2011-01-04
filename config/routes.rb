@@ -1,5 +1,8 @@
 PhocoderRbRailsExample::Application.routes.draw do
   
+  post "phocoder/thumbnail_update"
+  post "phocoder/phocoder_update"
+
   #see ImageUploadController for reasons why edit and update are excluded
   
   resources :image_uploads, :except=>[:edit,:update] do

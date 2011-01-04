@@ -25,3 +25,13 @@ RSpec.configure do |config|
   # instead of true.
   config.use_transactional_fixtures = true
 end
+
+
+
+#force uploads to go to a tmp directory
+class ImageUpload
+  def local_dir
+    File.join(Dir.tmpdir,Rails.env,'public',resource_dir)
+  end
+end
+

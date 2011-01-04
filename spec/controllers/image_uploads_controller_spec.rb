@@ -8,7 +8,7 @@ describe ImageUploadsController do
 
   describe "GET index" do
     it "assigns all image_uploads as @image_uploads" do
-      ImageUpload.stub(:all) { [mock_image_upload] }
+      ImageUpload.stub_chain(:top_level,:all).and_return([mock_image_upload])
       get :index
       assigns(:image_uploads).should eq([mock_image_upload])
     end

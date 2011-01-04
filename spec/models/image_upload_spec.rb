@@ -27,7 +27,7 @@ describe ImageUpload do
   it "should save the file to a local storage location" do
     iu = ImageUpload.new(@attr)
     iu.save
-    expected_local_path = File.join(::Rails.root.to_s,'public','ImageUpload',iu.id.to_s,iu.filename)
+    expected_local_path = File.join(Dir.tmpdir,Rails.env,'public','ImageUpload',iu.id.to_s,iu.filename)
     iu.local_path.should == expected_local_path
     iu.local_url.should == "/ImageUpload/#{iu.id}/#{iu.filename}"
     File.exists?(expected_local_path).should be_true
@@ -35,7 +35,7 @@ describe ImageUpload do
     File.exists?(expected_local_path).should_not be_true
   end
   
-  it "should save the file to an AWS S3 storage location" do
+  it "should save the file to an AWS S3 storage location, call phocoder, then destroy" do
     iu = ImageUpload.new(@attr)
     iu.save
     #should not be on S3 yet
@@ -49,6 +49,15 @@ describe ImageUpload do
     lambda{
       o = AWS::S3::S3Object.find(key,bucket)
     }.should_not raise_error(Exception)
+    
+    Phocoder::Job.stub!(:create).and_return(mock(Phocoder::Response,:body=>{
+      "job"=>{
+        "id"=>1,
+        "inputs"=>["id"=>1],
+        "thumbnails"=>[{"label"=>"small","filename"=>"small-test-file.jpg","id"=>1}]
+      }
+    }))
+    iu.phocode
     
     iu.destroy
     #after destroy the file should not be in S3 anymore

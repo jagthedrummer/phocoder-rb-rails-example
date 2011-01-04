@@ -8,7 +8,7 @@ module ImageUploadsHelper
       return "<div class='error'>'#{thumbnail}' is not a valid thumbnail size for ImageUploads</div>".html_safe
     end
     thumb = image_upload.thumbnail_for(thumbnail)
-    if thumb.width.blank?
+    if thumb.blank? or thumb.width.blank?
       return pending_phocoder_thumbnail(image_upload,thumbnail,thumbnail_atts)
     end
     image_tag thumb.s3_url, :size=>"#{thumb.width}x#{thumb.height}"
@@ -16,7 +16,7 @@ module ImageUploadsHelper
   
   def pending_phocoder_thumbnail(photo,thumbnail,thumbnail_atts,spinner='waiting')
     elemId = "#{photo.class.to_s}_#{photo.id.to_s}"
-    updater = remote_function(:update=>elemId)
+    #updater = remote_function(:update=>elemId)
     width = thumbnail_atts[:width]
     height = thumbnail_atts[:height]
     tag = %[<span id="#{elemId}">

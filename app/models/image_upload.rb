@@ -1,7 +1,7 @@
 class ImageUpload < ActiveRecord::Base
   require 'aws/s3'
   require 'phocoder'
-  before_destroy :remove_local_file,:remove_s3_file
+  before_destroy :destroy_thumbnails,:remove_local_file,:remove_s3_file
   after_save :save_local_file
   
   has_many :thumbnails, :class_name=>"ImageUpload",:foreign_key => "parent_id"
@@ -13,6 +13,12 @@ class ImageUpload < ActiveRecord::Base
     {:label=>"small",:width=>100,:height=>100},
     {:label=>"medium",:width=>400,:height=>400},
   ]
+  
+  def destroy_thumbnails
+    self.thumbnails.each do |thumb|
+      thumb.destroy
+    end
+  end
   
   def self.thumbnail_attributes_for(thumbnail = "small")
     atts = THUMBNAILS.select{|atts| atts[:label] == thumbnail }
@@ -48,7 +54,7 @@ class ImageUpload < ActiveRecord::Base
   end
   
   def local_dir
-    File.join(Rails.root,'public',resource_dir)
+    File.join(::Rails.root,'public',resource_dir)
   end
 
   def local_path
@@ -111,14 +117,14 @@ class ImageUpload < ActiveRecord::Base
   
   
   def phocoder_params
-    {:input => {:url => self.s3_url, :notifications=>[{:url=>"http://phocoderexample.chaos.webapeel.com/image_uploads/phocoder_update.json" }] },
+    {:input => {:url => self.s3_url, :notifications=>[{:url=>"http://phocoderexample.chaos.webapeel.com/phocoder/phocoder_update.json" }] },
       :thumbnails => THUMBNAILS.map{|thumb|
         thumb_filename = thumb[:label] + "_" + File.basename(self.filename,File.extname(self.filename)) + ".jpg" 
         base_url = "s3://#{s3_config[:bucket_name]}/#{self.resource_dir}/"
         thumb.merge({
           :filename=>thumb_filename,
           :base_url=>base_url,
-          :notifications=>[{:url=>"http://phocoderexample.chaos.webapeel.com/image_uploads/phocoder_update.json" }]
+          :notifications=>[{:url=>"http://phocoderexample.chaos.webapeel.com/phocoder/phocoder_update.json" }]
         })
       }
     }

@@ -10,7 +10,10 @@
 
 <% @image_uploads.each do |image_upload| %>
   <tr>
-    <td><%= image_upload.filename %></td>
+    <td>
+    	<%= phocoder_thumbnail image_upload,"small" %><br/>
+		<%= image_upload.filename %>
+	</td>
     <td><%= link_to 'Show', image_upload %></td>
     
     <td><%= link_to 'Destroy', image_upload, :confirm => 'Are you sure?', :method => :delete %></td>

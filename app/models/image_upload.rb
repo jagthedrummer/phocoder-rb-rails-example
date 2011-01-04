@@ -4,8 +4,8 @@ class ImageUpload < ActiveRecord::Base
   before_destroy :remove_local_file,:remove_s3_file
   after_save :save_local_file
   
-  has_many :thumbnails, :class_name=>"ImageUpload"
-  belongs_to :parent, :class_name=>"ImageUpload"
+  has_many :thumbnails, :class_name=>"ImageUpload",:foreign_key => "parent_id"
+  belongs_to :parent, :class_name=>"ImageUpload",:foreign_key => "parent_id"
   
   scope :top_level, where({:parent_id=>nil})
   
@@ -13,6 +13,15 @@ class ImageUpload < ActiveRecord::Base
     {:label=>"small",:width=>100,:height=>100},
     {:label=>"medium",:width=>400,:height=>400},
   ]
+  
+  def self.thumbnail_attributes_for(thumbnail = "small")
+    atts = THUMBNAILS.select{|atts| atts[:label] == thumbnail }
+    atts.first
+  end
+  
+  def thumbnail_for(thumbnail_name)
+    self.thumbnails.find_by_thumbnail(thumbnail_name)
+  end
   
   def file=(new_file)
     self.filename = new_file.original_filename
@@ -35,7 +44,7 @@ class ImageUpload < ActiveRecord::Base
   end
     
   def resource_dir
-    File.join(self.class.name,id.to_s)
+    File.join(self.class.name, parent_id.blank? ? id.to_s : parent_id.to_s )
   end
   
   def local_dir

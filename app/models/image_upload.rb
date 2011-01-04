@@ -2,7 +2,7 @@ class ImageUpload < ActiveRecord::Base
   require 'aws/s3'
   require 'phocoder'
   before_destroy :destroy_thumbnails,:remove_local_file,:remove_s3_file
-  after_save :save_local_file
+  after_save :save_local_file ,:save_s3_file,:phocode
   
   has_many :thumbnails, :class_name=>"ImageUpload",:foreign_key => "parent_id"
   belongs_to :parent, :class_name=>"ImageUpload",:foreign_key => "parent_id"
@@ -65,6 +65,24 @@ class ImageUpload < ActiveRecord::Base
     File.join("/",resource_dir,filename)
   end
   
+  
+  # Sanitizes a filename.
+  def filename=(new_name)
+    write_attribute :filename, sanitize_filename(new_name)
+  end
+  
+  def sanitize_filename(filename)
+    return unless filename
+    returning filename.strip do |name|
+      # NOTE: File.basename doesn't work right with Windows paths on Unix
+      # get only the filename, not the whole path
+      name.gsub! /^.*(\\|\/)/, ''
+      
+      # Finally, replace all non alphanumeric, underscore or periods with underscore
+      name.gsub! /[^A-Za-z0-9\.\-]/, '_'
+    end
+  end
+  
   #---------------------------------------------------------------
   #S3 stuff.s3.amazonaws.com
   #---------------------------------------------------------------
@@ -92,6 +110,8 @@ class ImageUpload < ActiveRecord::Base
   end
   
   def save_s3_file
+    #this is a dirty hack to see what happens when we add save_s3_file and phocode to the after_save routine
+    return if @saved_file.blank?
     AWS::S3::S3Object.store(
       s3_key, 
       open(local_path), 
@@ -131,11 +151,17 @@ class ImageUpload < ActiveRecord::Base
   end
   
   def phocode
+    return if @saved_file.blank? or @phocoding
+    if self.thumbnails.count >= THUMBNAILS.count
+      raise "This item already has thumbnails!"
+      return
+    end
+    @phocoding = true
     phocoder_init
     response = Phocoder::Job.create(phocoder_params)
     self.phocoder_input_id = response.body["job"]["inputs"].first["id"]
     self.phocoder_job_id = response.body["job"]["id"]
-    self.save
+    self.save false #need to do save(false) here if we're calling phocode on after_save
     response.body["job"]["thumbnails"].each do |thumb_params|
       thumb = ImageUpload.new(
         :thumbnail=>thumb_params["label"],

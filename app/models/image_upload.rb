@@ -1,8 +1,8 @@
 class ImageUpload < ActiveRecord::Base
-  require 'aws/s3'
-  require 'phocoder'
+  
+  
   before_destroy :destroy_thumbnails,:remove_local_file,:remove_s3_file
-  after_save :save_local_file ,:save_s3_file,:phocode
+  after_save :save_local_file #,:save_s3_file,:phocode
   
   has_many :thumbnails, :class_name=>"ImageUpload",:foreign_key => "parent_id"
   belongs_to :parent, :class_name=>"ImageUpload",:foreign_key => "parent_id"
@@ -98,20 +98,21 @@ class ImageUpload < ActiveRecord::Base
   end
   
   def s3_config
-    return @s3_config if !@s3_config.blank?
-    config_path =  ::Rails.root.to_s + '/config/amazon_s3.yml'
-    Rails.logger.debug "---------------------------- reading config file!"
-    @s3_config =  YAML.load(ERB.new(File.read(config_path)).result)[::Rails.env.to_s].symbolize_keys
-    AWS::S3::Base.establish_connection!(
-      :access_key_id     => @s3_config[:access_key_id],
-      :secret_access_key => @s3_config[:secret_access_key]
-    )
-    @s3_config
+    AWS_S3_CONFIG
+#    return @s3_config if !@s3_config.blank?
+#    config_path =  ::Rails.root.to_s + '/config/amazon_s3.yml'
+#    Rails.logger.debug "---------------------------- reading config file!"
+#    @s3_config =  YAML.load(ERB.new(File.read(config_path)).result)[::Rails.env.to_s].symbolize_keys
+#    AWS::S3::Base.establish_connection!(
+#      :access_key_id     => @s3_config[:access_key_id],
+#      :secret_access_key => @s3_config[:secret_access_key]
+#    )
+#    @s3_config
   end
   
   def save_s3_file
     #this is a dirty hack to see what happens when we add save_s3_file and phocode to the after_save routine
-    return if @saved_file.blank?
+    #return if @saved_file.blank?
     AWS::S3::S3Object.store(
       s3_key, 
       open(local_path), 
@@ -129,10 +130,7 @@ class ImageUpload < ActiveRecord::Base
   #---------------------------------------------------------------
   
   def phocoder_init
-    config_path =  ::Rails.root.to_s + '/config/phocoder.yml'
-    Rails.logger.debug "---------------------------- reading config file!"
-    @phocoder_config =  YAML.load(ERB.new(File.read(config_path)).result)[::Rails.env.to_s].symbolize_keys
-    Phocoder.api_key = @phocoder_config[:api_key]
+    
   end
   
   
@@ -151,13 +149,15 @@ class ImageUpload < ActiveRecord::Base
   end
   
   def phocode
-    return if @saved_file.blank? or @phocoding
+    
     if self.thumbnails.count >= THUMBNAILS.count
       raise "This item already has thumbnails!"
       return
     end
+    
+    return if @phocoding
     @phocoding = true
-    phocoder_init
+    
     response = Phocoder::Job.create(phocoder_params)
     self.phocoder_input_id = response.body["job"]["inputs"].first["id"]
     self.phocoder_job_id = response.body["job"]["id"]

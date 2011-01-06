@@ -29,7 +29,7 @@ module ImageUploadsHelper
                     evalScripts:true,
                     parameters: { class:'#{photo.class.to_s}', id:#{photo.id.to_s},thumbnail:'#{thumbnail}' }
                 });
-              },15000);
+              },1000);
             </script>   
     ]
     tag += %[</span>]

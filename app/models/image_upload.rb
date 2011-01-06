@@ -8,7 +8,7 @@ class ImageUpload < ActiveRecord::Base
   belongs_to :parent, :class_name=>"ImageUpload",:foreign_key => "parent_id"
   
   scope :top_level, where({:parent_id=>nil})
-  
+  scope :local, lambda {|host| where(:upload_host => host,:status=>"local") }
   THUMBNAILS = [
     {:label=>"small",:width=>100,:height=>100},
     {:label=>"medium",:width=>400,:height=>400},
@@ -40,6 +40,10 @@ class ImageUpload < ActiveRecord::Base
     return if @saved_file.blank?
     FileUtils.mkdir_p local_dir
     FileUtils.cp @saved_file.tempfile.path, local_path
+    self.status = "local"
+    self.upload_host = %x{hostname}.strip
+    @saved_file = nil
+    self.save
   end
   
   def remove_local_file
@@ -119,6 +123,8 @@ class ImageUpload < ActiveRecord::Base
       s3_config[:bucket_name],
       :access => :public_read
     )
+    self.status = "s3"
+    self.save
   end
   
   def remove_s3_file
@@ -129,11 +135,7 @@ class ImageUpload < ActiveRecord::Base
   # Phocoder stuff
   #---------------------------------------------------------------
   
-  def phocoder_init
-    
-  end
-  
-  
+ 
   def phocoder_params
     {:input => {:url => self.s3_url, :notifications=>[{:url=>"http://phocoderexample.chaos.webapeel.com/phocoder/phocoder_update.json" }] },
       :thumbnails => THUMBNAILS.map{|thumb|
@@ -161,14 +163,16 @@ class ImageUpload < ActiveRecord::Base
     response = Phocoder::Job.create(phocoder_params)
     self.phocoder_input_id = response.body["job"]["inputs"].first["id"]
     self.phocoder_job_id = response.body["job"]["id"]
-    self.save false #need to do save(false) here if we're calling phocode on after_save
+    self.status = "phocoding"
+    self.save #false need to do save(false) here if we're calling phocode on after_save
     response.body["job"]["thumbnails"].each do |thumb_params|
       thumb = ImageUpload.new(
         :thumbnail=>thumb_params["label"],
         :filename=>thumb_params["filename"],
         :phocoder_output_id=>thumb_params["id"],
         :phocoder_job_id=>response.body["job"]["id"],
-        :parent_id=>self.id
+        :parent_id=>self.id,
+        :status => "phocoding"
       )
       thumb.save
     end
@@ -185,6 +189,7 @@ class ImageUpload < ActiveRecord::Base
     iu.file_size = img_params[:file_size]
     iu.width = img_params[:width]
     iu.height = img_params[:height]
+    iu.status = "ready"
     iu.save
     iu
   end

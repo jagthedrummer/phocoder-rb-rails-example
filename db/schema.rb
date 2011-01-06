@@ -10,7 +10,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20110103034859) do
+ActiveRecord::Schema.define(:version => 20110106224620) do
 
   create_table "image_uploads", :force => true do |t|
     t.string   "filename"
@@ -25,6 +25,8 @@ ActiveRecord::Schema.define(:version => 20110103034859) do
     t.integer  "file_size"
     t.string   "thumbnail"
     t.integer  "parent_id"
+    t.string   "status"
+    t.string   "upload_host"
   end
 
 end

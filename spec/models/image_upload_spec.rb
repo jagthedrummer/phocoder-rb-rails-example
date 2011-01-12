@@ -24,6 +24,7 @@ describe ImageUpload do
   end
   
   
+  
   it "should save the file to a local storage location" do
     iu = ImageUpload.new(@attr)
     iu.save
@@ -34,6 +35,7 @@ describe ImageUpload do
     iu.destroy
     File.exists?(expected_local_path).should_not be_true
   end
+  
   
   it "should save the file to an AWS S3 storage location, call phocoder, then destroy" do
     iu = ImageUpload.new(@attr)

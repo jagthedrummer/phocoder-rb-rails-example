@@ -27,7 +27,6 @@ gem 'aws-s3', :require => 'aws/s3'
 
 
 gem 'resque'
-gem 'resque-scheduler'
 #resque doesn't like the built in timer, so we need this one
 gem 'SystemTimer'
 
@@ -53,4 +52,5 @@ group :test do
   gem 'rspec', '2.0.0.beta.18'
   gem 'factory_girl_rails', '1.0'
   gem 'redgreen', '1.2.2'
+  gem 'resque_spec'
 end

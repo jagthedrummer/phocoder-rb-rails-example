@@ -2,7 +2,7 @@ class ImageUpload < ActiveRecord::Base
   
   
   before_destroy :destroy_thumbnails,:remove_local_file,:remove_s3_file
-  after_save :save_local_file #,:save_s3_file,:phocode
+  after_save :save_local_file,:notify_resque
   
   has_many :thumbnails, :class_name=>"ImageUpload",:foreign_key => "parent_id"
   belongs_to :parent, :class_name=>"ImageUpload",:foreign_key => "parent_id"
@@ -13,6 +13,27 @@ class ImageUpload < ActiveRecord::Base
     {:label=>"small",:width=>100,:height=>100},
     {:label=>"medium",:width=>400,:height=>400},
   ]
+  
+  #---------------------------------------------
+  # Resque stuff
+  #---------------------------------------------
+  def notify_resque
+    if @saved_a_file
+      Resque.enqueue(ImageUpload,self.id)
+    end
+  end
+  
+  @queue = :image_uploads
+
+  def self.perform(image_upload_id)
+    img = ImageUpload.find image_upload_id
+    img.save_s3_file
+    img.phocode
+  end
+  #---------------------------------------------
+  # End Resque stuff
+  #---------------------------------------------
+  
   
   def destroy_thumbnails
     self.thumbnails.each do |thumb|
@@ -43,6 +64,7 @@ class ImageUpload < ActiveRecord::Base
     self.status = "local"
     self.upload_host = %x{hostname}.strip
     @saved_file = nil
+    @saved_a_file = true
     self.save
   end
   

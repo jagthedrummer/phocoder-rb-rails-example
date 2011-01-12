@@ -24,6 +24,13 @@ RSpec.configure do |config|
   # examples within a transaction, comment the following line or assign false
   # instead of true.
   config.use_transactional_fixtures = true
+  
+  #Make tests involving sending a job to resque work
+  config.before(:each) {
+    #Resque.stub!(:enqueue)
+    ResqueSpec.reset!
+  }
+  
 end
 
 

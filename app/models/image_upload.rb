@@ -47,7 +47,7 @@ class ImageUpload < ActiveRecord::Base
   end
   
   def remove_local_file
-    if File.exists? local_path
+    if local_path and File.exists? local_path
       FileUtils.rm local_path
       FileUtils.rmdir local_dir
     end
@@ -62,11 +62,11 @@ class ImageUpload < ActiveRecord::Base
   end
 
   def local_path
-    File.join(local_dir,filename)
+    filename.blank? ? nil : File.join(local_dir,filename)
   end
   
   def local_url
-    File.join("/",resource_dir,filename)
+    filename.blank? ? nil : File.join("/",resource_dir,filename)
   end
   
   
@@ -94,7 +94,7 @@ class ImageUpload < ActiveRecord::Base
   attr_reader :bucket_name
   
   def s3_key
-    File.join(resource_dir,filename)
+    filename.blank? ? nil : File.join(resource_dir,filename)
   end
   
   def s3_url
@@ -129,6 +129,8 @@ class ImageUpload < ActiveRecord::Base
   
   def remove_s3_file
     AWS::S3::S3Object.delete s3_key, s3_config[:bucket_name]
+  rescue Exception => e
+    #this probably means that the file never made it to S3
   end
   
   #---------------------------------------------------------------

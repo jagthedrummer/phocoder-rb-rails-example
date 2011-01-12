@@ -26,8 +26,11 @@ gem 'phocoder-rb'
 gem 'aws-s3', :require => 'aws/s3'
 
 
-#for running a background process to get files to S3/phocoder
-gem 'daemons'
+gem 'resque'
+gem 'resque-scheduler'
+#resque doesn't like the built in timer, so we need this one
+gem 'SystemTimer'
+
 
 
 # Bundle gems for the local environment. Make sure to

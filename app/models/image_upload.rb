@@ -13,6 +13,7 @@ class ImageUpload < ActiveRecord::Base
     {:label=>"small",:width=>100,:height=>100},
     {:label=>"medium",:width=>400,:height=>400},
   ]
+  CALLBACK_URL = "http://phocoderexample.apeelapp.com/phocoder/phocoder_update.json"
   
   def destroy_thumbnails
     self.thumbnails.each do |thumb|
@@ -139,14 +140,14 @@ class ImageUpload < ActiveRecord::Base
   
  
   def phocoder_params
-    {:input => {:url => self.s3_url, :notifications=>[{:url=>"http://phocoderexample.chaos.webapeel.com/phocoder/phocoder_update.json" }] },
+    {:input => {:url => self.s3_url, :notifications=>[{:url=>CALLBACK_URL }] },
       :thumbnails => THUMBNAILS.map{|thumb|
         thumb_filename = thumb[:label] + "_" + File.basename(self.filename,File.extname(self.filename)) + ".jpg" 
         base_url = "s3://#{s3_config[:bucket_name]}/#{self.resource_dir}/"
         thumb.merge({
           :filename=>thumb_filename,
           :base_url=>base_url,
-          :notifications=>[{:url=>"http://phocoderexample.chaos.webapeel.com/phocoder/phocoder_update.json" }]
+          :notifications=>[{:url=>CALLBACK_URL }]
         })
       }
     }

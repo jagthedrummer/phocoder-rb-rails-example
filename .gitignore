@@ -7,3 +7,4 @@ config/phocoder.yml
 coverage/
 public/ImageUpload/
 *~
+tmp/

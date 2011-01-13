@@ -2,7 +2,7 @@ class ImageUpload < ActiveRecord::Base
   
   
   before_destroy :destroy_thumbnails,:remove_local_file,:remove_s3_file
-  after_save :save_local_file #,:save_s3_file,:phocode
+  after_save :save_local_file,:save_s3_file #,:phocode
   
   has_many :thumbnails, :class_name=>"ImageUpload",:foreign_key => "parent_id"
   belongs_to :parent, :class_name=>"ImageUpload",:foreign_key => "parent_id"
@@ -13,7 +13,11 @@ class ImageUpload < ActiveRecord::Base
     {:label=>"small",:width=>100,:height=>100},
     {:label=>"medium",:width=>400,:height=>400},
   ]
-  CALLBACK_URL = "http://phocoderexample.apeelapp.com/phocoder/phocoder_update.json"
+  
+  
+  def callback_url
+    CALLBACK_URL
+  end
   
   def destroy_thumbnails
     self.thumbnails.each do |thumb|
@@ -44,6 +48,7 @@ class ImageUpload < ActiveRecord::Base
     self.status = "local"
     self.upload_host = %x{hostname}.strip
     @saved_file = nil
+    @saved_a_new_file = true
     self.save
   end
   
@@ -117,7 +122,8 @@ class ImageUpload < ActiveRecord::Base
   
   def save_s3_file
     #this is a dirty hack to see what happens when we add save_s3_file and phocode to the after_save routine
-    #return if @saved_file.blank?
+    return if !@saved_a_new_file
+    @saved_a_new_file = false
     AWS::S3::S3Object.store(
       s3_key, 
       open(local_path), 
@@ -126,6 +132,7 @@ class ImageUpload < ActiveRecord::Base
     )
     self.status = "s3"
     self.save
+    self.phocode
   end
   
   def remove_s3_file
@@ -140,14 +147,14 @@ class ImageUpload < ActiveRecord::Base
   
  
   def phocoder_params
-    {:input => {:url => self.s3_url, :notifications=>[{:url=>CALLBACK_URL }] },
+    {:input => {:url => self.s3_url, :notifications=>[{:url=>callback_url }] },
       :thumbnails => THUMBNAILS.map{|thumb|
         thumb_filename = thumb[:label] + "_" + File.basename(self.filename,File.extname(self.filename)) + ".jpg" 
         base_url = "s3://#{s3_config[:bucket_name]}/#{self.resource_dir}/"
         thumb.merge({
           :filename=>thumb_filename,
           :base_url=>base_url,
-          :notifications=>[{:url=>CALLBACK_URL }]
+          :notifications=>[{:url=>callback_url }]
         })
       }
     }
@@ -159,10 +166,12 @@ class ImageUpload < ActiveRecord::Base
       raise "This item already has thumbnails!"
       return
     end
-    
+        
     return if @phocoding
     @phocoding = true
     
+    Rails.logger.debug "trying to phocode for #{Phocoder.base_url}"
+    Rails.logger.debug "callback url = #{callback_url}"
     response = Phocoder::Job.create(phocoder_params)
     self.phocoder_input_id = response.body["job"]["inputs"].first["id"]
     self.phocoder_job_id = response.body["job"]["id"]

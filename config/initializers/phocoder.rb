@@ -8,6 +8,4 @@ if PHOCODER_CONFIG[:base_url]
   Phocoder.base_url = PHOCODER_CONFIG[:base_url]
 end
 
-if PHOCODER_CONFIG[:callback_url]
-  ImageUpload::CALLBACK_URL = PHOCODER_CONFIG[:callback_url]
-end
+CALLBACK_URL = PHOCODER_CONFIG[:callback_url] ||= "http://phocoderexample.apeelapp.com/phocoder/phocoder_update.json" 

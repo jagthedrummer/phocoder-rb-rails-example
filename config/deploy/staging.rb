@@ -9,3 +9,6 @@ role :backgroundrb, "ext-backgroundrb-r3.apeelapp.com"
 
 set :deploy_to, "/mnt/rails/#{application}"
 
+ssh_options[:port] = 2569
+
+set :branch, "inline"

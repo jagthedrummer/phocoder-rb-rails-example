@@ -10,8 +10,24 @@ class ImageUpload < ActiveRecord::Base
   scope :top_level, where({:parent_id=>nil})
   scope :local, lambda {|host| where(:upload_host => host,:status=>"local") }
   THUMBNAILS = [
-    {:label=>"small",:width=>100,:height=>100},
-    {:label=>"medium",:width=>400,:height=>400},
+    {:label=>"small",:width=>100,:height=>100 },
+    {:label=>"medium",:width=>400,:height=>400 },
+    
+    {:label=>"preserve-square",:width=>200,:height=>200,:aspect_mode=>"preserve" },
+    {:label=>"stretch-square",:width=>200,:height=>200,:aspect_mode=>"stretch" },
+    {:label=>"crop-square",:width=>200,:height=>200,:aspect_mode=>"crop" },
+    {:label=>"pad-square",:width=>200,:height=>200,:aspect_mode=>"pad" },
+    
+    {:label=>"preserve-portrait",:width=>100,:height=>200,:aspect_mode=>"preserve" },
+    {:label=>"stretch-portrait",:width=>100,:height=>200,:aspect_mode=>"stretch" },
+    {:label=>"crop-portrait",:width=>100,:height=>200,:aspect_mode=>"crop" },
+    {:label=>"pad-portrait",:width=>100,:height=>200,:aspect_mode=>"pad" },
+    
+    {:label=>"preserve-landscape",:width=>200,:height=>100,:aspect_mode=>"preserve" },
+    {:label=>"stretch-landscape",:width=>200,:height=>100,:aspect_mode=>"stretch" },
+    {:label=>"crop-landscape",:width=>200,:height=>100,:aspect_mode=>"crop" },
+    {:label=>"pad-landscape",:width=>200,:height=>100,:aspect_mode=>"pad" }
+    
   ]
   
   

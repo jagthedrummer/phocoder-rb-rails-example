@@ -1,5 +1,12 @@
 module ImageUploadsHelper
   
+  require 'active_support/secure_random'
+  
+  def preview_reload_timeout
+    #time in ms between preview reloading
+    1000
+  end
+  
   #for now we'll assume that a thumbnail is needed
   #some files aren't displayable in a native way (NEF etc...)
   def phocoder_thumbnail(image_upload,thumbnail="small")
@@ -15,7 +22,8 @@ module ImageUploadsHelper
   end
   
   def pending_phocoder_thumbnail(photo,thumbnail,thumbnail_atts,spinner='waiting')
-    elemId = "#{photo.class.to_s}_#{photo.id.to_s}"
+    random = ActiveSupport::SecureRandom.hex(16)
+    elemId = "#{photo.class.to_s}_#{photo.id.to_s}_#{random}"
     #updater = remote_function(:update=>elemId)
     width = thumbnail_atts[:width]
     height = thumbnail_atts[:height]
@@ -27,9 +35,9 @@ module ImageUploadsHelper
               setTimeout(function() {
                 new Ajax.Request( '/phocoder/thumbnail_update', {
                     evalScripts:true,
-                    parameters: { class:'#{photo.class.to_s}', id:#{photo.id.to_s},thumbnail:'#{thumbnail}' }
+                    parameters: { class:'#{photo.class.to_s}', id:#{photo.id.to_s},thumbnail:'#{thumbnail}',random:'#{random}' }
                 });
-              },1500);
+              },#{preview_reload_timeout});
             </script>   
     ]
     tag += %[</span>]

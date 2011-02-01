@@ -7,4 +7,60 @@
 
 <%= phocoder_thumbnail @image_upload,"medium" %>
 
+
+<table>
+	<tr>
+		<th>&nbsp;</th>
+		<th>Preserve</th>
+		<th>Stretch</th>
+		<th>Crop</th>
+		<th>Pad</th>
+	</tr>
+	<tr>
+		<th>Square</th>
+		<td>
+			<%= phocoder_thumbnail @image_upload,"preserve-square" %>
+		</td>
+		<td>
+			<%= phocoder_thumbnail @image_upload,"stretch-square" %>
+		</td>
+		<td>
+			<%= phocoder_thumbnail @image_upload,"crop-square" %>
+		</td>
+		<td>
+			<%= phocoder_thumbnail @image_upload,"pad-square" %>
+		</td>
+	</tr>
+	<tr>
+		<th>Portrait</th>
+		<td>
+			<%= phocoder_thumbnail @image_upload,"preserve-portrait" %>
+		</td>
+		<td>
+			<%= phocoder_thumbnail @image_upload,"stretch-portrait" %>
+		</td>
+		<td>
+			<%= phocoder_thumbnail @image_upload,"crop-portrait" %>
+		</td>
+		<td>
+			<%= phocoder_thumbnail @image_upload,"pad-portrait" %>
+		</td>
+	</tr>
+	<tr>
+		<th>Landscape</th>
+		<td>
+			<%= phocoder_thumbnail @image_upload,"preserve-landscape" %>
+		</td>
+		<td>
+			<%= phocoder_thumbnail @image_upload,"stretch-landscape" %>
+		</td>
+		<td>
+			<%= phocoder_thumbnail @image_upload,"crop-landscape" %>
+		</td>
+		<td>
+			<%= phocoder_thumbnail @image_upload,"pad-landscape" %>
+		</td>
+	</tr>
+</table>
+
 <%= link_to 'Back', image_uploads_path %>

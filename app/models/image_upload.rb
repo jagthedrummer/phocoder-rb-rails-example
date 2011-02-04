@@ -11,22 +11,22 @@ class ImageUpload < ActiveRecord::Base
   scope :local, lambda {|host| where(:upload_host => host,:status=>"local") }
   THUMBNAILS = [
     {:label=>"small",:width=>100,:height=>100 },
-    {:label=>"medium",:width=>400,:height=>400 },
+    {:label=>"medium",:width=>400,:height=>400, :frame=>{ :width=>20, :color=>'003' } },
     
-    {:label=>"preserve-square",:width=>200,:height=>200,:aspect_mode=>"preserve" },
-    {:label=>"stretch-square",:width=>200,:height=>200,:aspect_mode=>"stretch" },
-    {:label=>"crop-square",:width=>200,:height=>200,:aspect_mode=>"crop" },
-    {:label=>"pad-square",:width=>200,:height=>200,:aspect_mode=>"pad" },
+    {:label=>"preserve-square",:width=>200,:height=>200,:aspect_mode=>"preserve" , :frame=>{ :width=>10, :color=>'300' } },
+    {:label=>"stretch-square",:width=>200,:height=>200,:aspect_mode=>"stretch", :frame=>{ :width=>10, :color=>'300' } },
+    {:label=>"crop-square",:width=>200,:height=>200,:aspect_mode=>"crop", :frame=>{ :width=>10, :color=>'300' } },
+    {:label=>"pad-square",:width=>200,:height=>200,:aspect_mode=>"pad", :frame=>{ :width=>10, :color=>'300' } },
     
-    {:label=>"preserve-portrait",:width=>100,:height=>200,:aspect_mode=>"preserve" },
-    {:label=>"stretch-portrait",:width=>100,:height=>200,:aspect_mode=>"stretch" },
-    {:label=>"crop-portrait",:width=>100,:height=>200,:aspect_mode=>"crop" },
-    {:label=>"pad-portrait",:width=>100,:height=>200,:aspect_mode=>"pad" },
+    {:label=>"preserve-portrait",:width=>100,:height=>200,:aspect_mode=>"preserve", :frame=>{ :width=>10, :color=>'300' } },
+    {:label=>"stretch-portrait",:width=>100,:height=>200,:aspect_mode=>"stretch", :frame=>{ :width=>10, :color=>'300' } },
+    {:label=>"crop-portrait",:width=>100,:height=>200,:aspect_mode=>"crop", :frame=>{ :width=>10, :color=>'300' } },
+    {:label=>"pad-portrait",:width=>100,:height=>200,:aspect_mode=>"pad", :frame=>{ :width=>10, :color=>'300' } },
     
-    {:label=>"preserve-landscape",:width=>200,:height=>100,:aspect_mode=>"preserve" },
-    {:label=>"stretch-landscape",:width=>200,:height=>100,:aspect_mode=>"stretch" },
-    {:label=>"crop-landscape",:width=>200,:height=>100,:aspect_mode=>"crop" },
-    {:label=>"pad-landscape",:width=>200,:height=>100,:aspect_mode=>"pad" }
+    {:label=>"preserve-landscape",:width=>200,:height=>100,:aspect_mode=>"preserve", :frame=>{ :width=>10, :color=>'300' } },
+    {:label=>"stretch-landscape",:width=>200,:height=>100,:aspect_mode=>"stretch", :frame=>{ :width=>10, :color=>'300' } },
+    {:label=>"crop-landscape",:width=>200,:height=>100,:aspect_mode=>"crop", :frame=>{ :width=>10, :color=>'300' } },
+    {:label=>"pad-landscape",:width=>200,:height=>100,:aspect_mode=>"pad", :frame=>{ :width=>10, :color=>'300' } }
     
   ]
   

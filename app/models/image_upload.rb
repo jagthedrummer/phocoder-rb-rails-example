@@ -11,7 +11,13 @@ class ImageUpload < ActiveRecord::Base
   scope :local, lambda {|host| where(:upload_host => host,:status=>"local") }
   THUMBNAILS = [
     {:label=>"small",:width=>100,:height=>100 },
-    {:label=>"medium",:width=>400,:height=>400, :frame=>{ :width=>20, :color=>'003' } },
+    {:label=>"medium",:width=>400,:height=>400, 
+      :frame=>{ :width=>20, :bottom=>50, :color=>'003' }, 
+      :annotations=>[
+                      {:text=>"Annotation Testing",:pointsize=>30,:fill_color=>'fff',:gravity=>"South",:y=>10},
+                      {:text=>"Howdy!",:pointsize=>10,:fill_color=>'ccc',:gravity=>"North",:y=>5}
+                    ] 
+    },
     
     {:label=>"preserve-square",:width=>200,:height=>200,:aspect_mode=>"preserve" , :frame=>{ :width=>10, :color=>'300' } },
     {:label=>"stretch-square",:width=>200,:height=>200,:aspect_mode=>"stretch", :frame=>{ :width=>10, :color=>'300' } },
